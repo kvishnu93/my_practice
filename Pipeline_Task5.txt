@@ -1,0 +1,17 @@
+pipeline {
+    agent {
+        label 'Node1'
+    }
+
+    stages {
+        stage('Docker installation') {
+            steps {
+                sh "yum install yum-utils"
+                sh "yum config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo"
+                sh "yum install docker-ce  -y"
+                sh "systemctl enable docker"
+                sh "systemctl start docker"
+            }
+        }
+    }
+}

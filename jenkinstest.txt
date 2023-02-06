@@ -1,0 +1,24 @@
+1.Create freestyle job and pipeline job to install  packages using yum
+  condition: package name should be given from outside
+2. create a freestyle job and pipeline to build maven project and push articats to nexus
+  condition: create different jobs one should use tools from jenkins tools configuration 
+              other should use maven from command line not tools
+3. Create freestyle job as downstream job for above maven project to deploy artifacts to tomcat using shell command
+   this downstream job should execute only if upstream job (above maven job) is successful.
+
+4. create a pipeline job to build maven project and push artifacts to nexus and  deploy artifacts to tomcat from nexus
+   Condition: assign build triggers to start this job for every 30 minutes ( you can increase or decrease
+              timmings for your testing) and add a condition to not deploy artifacts
+              if there are no code changes.
+5. Configure/Attach  a node machine to the master with 4 executors using t2.medium and write a pipleine to install docker on node
+
+6. write a pipeline to  pull docker images and run docker containers on node machine don't use plugin use shell commands
+
+7. Create a pipeline job to build multiple docker images in parallel ( create dockeer images)
+    images1: image to perform maven builds
+    image2: image with tomcat configured
+
+8 Create pipeline to use ansible playbook plugin to run ansible playbooks ( use any type of playbooks you want to run)
+
+9. Before creating above pipeline configure a freestyle job or pipeline to copy ssh keys to destination server from node1 
+   to run ansible playbooks on destination server.

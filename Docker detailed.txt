@@ -1,0 +1,49 @@
+#This is file to perform maven build and the artifacts to Nexus
+
+# Taking the base image as redhat linux image 
+FROM redhat/ubi8
+
+# Installing packages required for this operation
+RUN yum install java -y
+RUN yum install maven -y
+RUN yum install git -y
+
+# Change the directory to OPT to clone the data from the github orelse use ADD keyword to get data from the internet.
+WORKDIR /opt
+
+# Add ARG (Argument) here to clone different data while building the image - commad is "docker build --build-arg github_link=provide_link image_name ."
+ARG github_link
+RUN git clone $github_link
+
+# Add another ARG (Argument)  to provide the name of the directory name, which is cloned for the github
+ARG directory_name
+WORKDIR /opt/$directory_name
+
+# Perform Maven operations which ever is required
+RUN mvn clean install
+
+# Create a volume to share the global settings.xml file 
+VOLUME /usr/share/maven/conf
+# while running the container use this command " docker run -v  /usr/share/maven/conf:/usr/share/maven/conf image_name"
+
+
+# Create another volume to share the proxy settings.xml file in .m2 directory
+VOLUME /root/.m2
+# while running the container use this command " docker run -v  /root/.m2:/root/.m2 image_name"
+
+RUN rm -rf /opt/xtechApp/pom.xml
+
+# Create another volume to share the pom.xml file 
+VOLUME /opt/xtechApp
+
+# Open the port 8081 in the container 
+EXPOSE 8081/tcp
+
+# Performing maven deploy command to deploy the artifacts to Nexus and this will execute while running the container
+ENTRYPOINT mvn clean deploy
+
+#To run this image use below command
+# docker build --build-arg github_link=https://github.com/kvishnu93/xtechApp.git --build-arg directory_name=xtechApp -t nexus:v2 .
+#docker run -it -v /opt/settings/conf:/usr/share/maven/conf -v /root/.m2:/root/.m2 -v  /opt/xtechApp:/opt/xtechApp -p 8081:8081/tcp nexus:v2
+
+

@@ -1,0 +1,62 @@
+pipeline {
+    agent any
+
+    tools {
+        // Install the Maven version configured as "M3" and add it to the path.
+        maven "MAVEN"
+    }
+    environment {
+        NEXUS_VERSION = "nexus3"
+        NEXUS_PROTOCOL = "http"
+        NEXUS_URL = "3.84.232.193:8081/"
+        NEXUS_REPOSITORY = "maven-releases"
+        NEXUS_CREDENTIAL_ID = "nexus"
+		VERSION = "1"
+		GROUP_ID = "com"
+		ARTIFACT_ID = "xtech"
+		TYPE = "war"
+		FILE = "/root/.jenkins/workspace/Pipeline_Task2/target/xtech-1.war"
+		PASSWORD = "123456"
+    }
+    
+    stages {
+        stage('Git checkout') {
+            steps {
+                // Get some code from a GitHub repository
+                git 'https://github.com/kvishnu93/xtechApp.git'
+
+                // Run Maven on a Unix agent.
+                sh "mvn clean package"
+            }
+        }
+        stage("Publish to Nexus Repository Manager") {
+            steps {
+                nexusArtifactUploader(
+                nexusVersion: NEXUS_VERSION,
+                protocol: NEXUS_PROTOCOL,
+                nexusUrl: NEXUS_URL,
+				credentialsId: NEXUS_CREDENTIAL_ID,
+                groupId: GROUP_ID,
+                version: VERSION,
+                repository: NEXUS_REPOSITORY,
+                artifacts: [
+                [artifactId: ARTIFACT_ID,
+                classifier: '',
+                type: TYPE,
+				file: FILE]
+                ]
+              );
+			}	
+        }
+        stage("download artifacts") {
+            steps {
+                sh "wget --user=admin --password=PASSWORD http://3.84.232.193:8081/repository/maven-hosted-release/com/xtech/1/xtech-1.war"
+			}
+		}
+		stage("move artifacts to tomcat") {
+		    steps {
+		        sh "cp /root/.jenkins/workspace/Pipeline_Task4/xtech-1.war /opt/tomcat9/webapps"
+		    }
+		}
+    }
+}

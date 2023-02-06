@@ -1,0 +1,41 @@
+# This is a dockerfile to configure tomcat and deploy xtechApp to tomcat with the host IP address
+
+# Take in the bas image as redhat linux
+FROM redhat/ubi8
+
+# Install java package that is required to run Tomcat
+RUN yum install java -y
+
+# Install wget to download tomcat from the internet in distributed method
+RUN yum install wget -y 
+
+# create a directory in OPT for tomcat installation
+WORKDIR /opt
+RUN mkdir tomcat
+WORKDIR /opt/tomcat
+
+# Download the tar file from the internet
+RUN wget https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.85/bin/apache-tomcat-8.5.85.tar.gz
+
+# Extract the above tar file using tar command
+RUN tar -xvf apache-tomcat-8.5.85.tar.gz
+
+# Change the name of the directory 
+RUN mv apache-tomcat-8.5.85 tomcat8
+
+# Change the director into the webapps in the tomcat8 directory
+WORKDIR /opt/tomcat/tomcat8/webapps
+
+# Copy the complied xtech.war file to the webapps directory
+COPY xtech-1.war .
+
+# Change the director to bin to the start the tomcat
+WORKDIR /opt/tomcat/tomcat8/bin
+
+# Open the port 8080 in the container 
+EXPOSE 8080/tcp
+
+# to build the image use commad - "docker build --network=host -t tomcat:v8 ."
+# to run the image - "docker run -it -d -p 8080:8080/tcp tomcat:v8"
+# to start the tomcat use this -  "docker exec -it container_id./startup.sh"
+

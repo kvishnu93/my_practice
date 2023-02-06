@@ -1,0 +1,10 @@
+pipeline {
+    agent any
+        stages {
+            stage(Installing_Packages) {
+                steps {
+                    sh "yum install $Package_Name"
+            }
+        }    
+    }
+}
